@@ -36,66 +36,34 @@ androidboot.hardware=mt6735 slub_max_order=0 slub_debug=OFZPU \
 firmware_class.path=/vendor/firmware";
 	};
 
-	/* Do not put any bus before mtk-msdc, because it should be mtk-msdc.0 for partition device node usage */
-	/*workaround for .0*/
-	mtk-msdc.0 {
-		compatible = "simple-bus";
-		#address-cells = <1>;
-		#size-cells = <1>;
-		ranges = <0 0 0 0xffffffff>;
+	msdc0: msdc@11230000 {
+		compatible = "mediatek,msdc";
+		reg = <0 0x11230000 0 0x10000>;
+		interrupts = <GIC_SPI 79 IRQ_TYPE_LEVEL_LOW>;
+	};
 
-		mmc0: msdc0@11230000{
-				compatible = "mediatek,mt6735-mmc";
-				reg = <0x11230000 0x10000  /* MSDC0_BASE   */
-					0x10000e84 0x2>;    /* FPGA PWR_GPIO, PWR_GPIO_EO */
-				interrupts = <GIC_SPI 79 IRQ_TYPE_LEVEL_LOW>;
-				status = "disabled";
-				clocks = <&perisys PERI_MSDC30_0>,
-					 <&topckgen TOP_MUX_MSDC30_0>,
-					 <&topckgen TOP_MSDCPLL_CK>,
-					 <&topckgen TOP_MSDCPLL_D2>,
-					 <&topckgen TOP_MSDCPLL_D4>;
-				clock-names="MSDC0-CLOCK",
-					"MSDC0_PLL_SEL",
-					"MSDC0_PLL_800M",
-					"MSDC0_PLL_400M",
-					"MSDC0_PLL_200M";
-		};
+	msdc1: msdc@11240000 {
+		compatible = "mediatek,msdc";
+		reg = <0 0x11240000 0 0x10000>;
+		interrupts = <GIC_SPI 80 IRQ_TYPE_LEVEL_LOW>;
+	};
 
-		mmc1: msdc1@11240000{
-				compatible = "mediatek,mt6735-mmc";
-				reg = <0x11240000 0x10000  /* MSDC1_BASE   */
-					0x10000e84 0x2>;    /* FPGA PWR_GPIO, PWR_GPIO_EO */
-				interrupts = <GIC_SPI 80 IRQ_TYPE_LEVEL_LOW>;
-				status = "disabled";
-				clocks = <&perisys PERI_MSDC30_1>;
-				clock-names="MSDC1-CLOCK";
-		};
+	msdc2: msdc@11240000 {
+		compatible = "mediatek,msdc2";
+		reg = <0 0x11240000 0 0x10000>;
+		interrupts = <GIC_SPI 81 IRQ_TYPE_LEVEL_LOW>;
+		status = "disabled";
+	};
 
-		mmc2: msdc2@11250000{
-				compatible = "mediatek,mt6735-mmc";
-				reg = <0x11250000 0x10000  /* MSDC2_BASE   */
-					0x10000e84 0x2>;    /* FPGA PWR_GPIO, PWR_GPIO_EO */
-				interrupts = <GIC_SPI 81 IRQ_TYPE_LEVEL_LOW>;
-				status = "disabled";
-				clocks = <&perisys PERI_MSDC30_2>;
-				clock-names="MSDC2-CLOCK";
-		};
+	msdc3: msdc@11240000 {
+		compatible = "mediatek,msdc3";
+		reg = <0 0x11240000 0 0x10000>;
+		interrupts = <GIC_SPI 82 IRQ_TYPE_LEVEL_LOW>;
+		status = "disabled";
+	};
 
-		mmc3: msdc3@11260000{
-				compatible = "mediatek,mt6735-mmc";
-				reg = <0x11260000 0x10000  /* MSDC2_BASE   */
-					0x10000e84 0x2>;    /* FPGA PWR_GPIO, PWR_GPIO_EO */
-				interrupts = <GIC_SPI 82 IRQ_TYPE_LEVEL_LOW>;
-				status = "disabled";
-				clocks = <&perisys PERI_MSDC30_3>;
-				clock-names="MSDC3-CLOCK";
-		};
-
-		/* only used for old way of DCT, can be removed in new platform */
-		msdc1_ins: default {
-			compatible = "mediatek, msdc1_ins-eint";
-		};
+	msdc1_ins: msdc1_ins@0 {
+		compatible = "mediatek,mt6735-sdcard-ins";
 	};
 
 	/* ATF logger SW IRQ number 281 = 32 + 249 */
@@ -186,21 +154,6 @@ firmware_class.path=/vendor/firmware";
 				     "mediatek,mt6753-atf-reserved-memory";
 			no-map;
 			reg = <0 0x43000000 0 0x30000>;
-		};
-
-		ram_console-reserved-memory@43f00000{
-			compatible = "mediatek,ram_console";
-			reg = <0 0x43f00000 0 0x10000>;
-		};
-
-		pstore-reserved-memory@43f10000 {
-			compatible = "mediatek,pstore";
-			reg = <0 0x43f10000 0 0xe0000>;
-		};
-
-		minirdump-reserved-memory@43ff0000{
-			compatible = "mediatek,minirdump";
-			reg = <0 0x43ff0000 0 0x10000>;
 		};
 
 		reserve-memory-ccci_md1 {
@@ -363,15 +316,16 @@ firmware_class.path=/vendor/firmware";
 			reg = <0x10002000 0x1000>;
 		};
 
-
 		keypad: keypad@10003000 {
-			compatible = "mediatek,mt6735-keypad";
+			compatible = "mediatek,kp",
+				"mediatek,mt6735-keypad",
+				"mediatek,mt6735m-keypad";
 			reg = <0x10003000 0x1000>;
 			interrupts = <GIC_SPI 164 IRQ_TYPE_EDGE_FALLING>;
 		};
 
 		apxgpt: apxgpt@10004000 {
-			compatible = "mediatek,mt6735-apxgpt";
+			compatible = "mediatek,APXGPT";
 			reg = <0x10004000 0x1000>;
 			interrupts = <GIC_SPI 152 IRQ_TYPE_LEVEL_LOW>;
 			clock-frequency = <13000000>;
@@ -464,7 +418,7 @@ firmware_class.path=/vendor/firmware";
 
 
 		sys_cirq: sys_cirq@10204000 {
-			compatible = "mediatek,mt6735-sys_cirq";
+			compatible = "mediatek,sys_cirq";
 			reg = <0x10204000 0x1000>;
 			interrupts = <GIC_SPI 231 IRQ_TYPE_LEVEL_LOW>;
 			mediatek,cirq_num = <159>;
@@ -730,18 +684,6 @@ firmware_class.path=/vendor/firmware";
 			interrupts = <GIC_SPI 114 IRQ_TYPE_LEVEL_LOW>;
 		};
 
-		btif_tx:btif_tx@11000880 {
-			compatible = "mediatek,btif_tx";
-			reg = <0x11000880 0x80>;
-			interrupts = <GIC_SPI 113 IRQ_TYPE_LEVEL_LOW>;
-		};
-
-		btif_rx:btif_rx@11000900 {
-			compatible = "mediatek,btif_rx";
-			reg = <0x11000900 0x80>;
-			interrupts = <GIC_SPI 114 IRQ_TYPE_LEVEL_LOW>;
-		};
-
 		apirtx:irtx@11011000 {
 			compatible = "mediatek,irtx";
 			reg = <0x11011000 0x1000>;
@@ -777,6 +719,7 @@ firmware_class.path=/vendor/firmware";
 		apuart0: apuart0@11002000 {
 			cell-index = <0>;
 			compatible = "mediatek,mt6735-uart";
+			skip_pinmux_clk = <1>;
 			reg =	<0x11002000 0x1000>, /* UART base */
 				<0x11000380 0x1000>, /* DMA Tx base */
 				<0x11000400 0x80>; /* DMA Rx base */
@@ -806,6 +749,7 @@ firmware_class.path=/vendor/firmware";
 		apuart1: apuart1@11003000 {
 			cell-index = <1>;
 			compatible = "mediatek,mt6735-uart";
+			skip_pinmux_clk = <1>;
 			reg =	<0x11003000 0x1000>, /* UART base */
 				<0x11000480 0x80>, /* DMA Tx base */
 				<0x11000500 0x80>; /* DMA Rx base */
@@ -835,6 +779,7 @@ firmware_class.path=/vendor/firmware";
 		apuart2: apuart2@11004000 {
 			cell-index = <2>;
 			compatible = "mediatek,mt6735-uart";
+			skip_pinmux_clk = <1>;
 			reg =	<0x11004000 0x1000>, /* UART base */
 				<0x11000580 0x80>, /* DMA Tx base */
 				<0x11000600 0x80>; /* DMA Rx base */
@@ -864,6 +809,7 @@ firmware_class.path=/vendor/firmware";
 		apuart3: apuart3@11005000 {
 			cell-index = <3>;
 			compatible = "mediatek,mt6735-uart";
+			skip_pinmux_clk = <1>;
 			reg =	<0x11005000 0x1000>, /* UART base */
 				<0x11000680 0x80>, /* DMA Tx base */
 				<0x11000700 0x80>; /* DMA Rx base */
@@ -967,14 +913,21 @@ firmware_class.path=/vendor/firmware";
 			interrupts = <GIC_SPI 125 IRQ_TYPE_LEVEL_LOW>;
 		};
 
-		btif:btif@1100c000 {
+		btif@0x1100C000 {
 			compatible = "mediatek,btif";
-			reg = <0x1100c000 0x1000>;
-			interrupts = <GIC_SPI 90 IRQ_TYPE_LEVEL_LOW>;
-			clocks = <&perisys PERI_BTIF>,<&perisys PERI_APDMA>;
+			#address-cells = <2>;
+			#size-cells = <2>;
+			reg = <0x1100C000 0x1000>,	/*btif base*/
+				  <0x11000780 0x80>,	/*btif tx dma base*/
+				  <0x11000800 0x80>;	/*btif rx dma base*/
+			interrupts = <GIC_SPI 90 IRQ_TYPE_LEVEL_LOW>,	/*btif base*/
+						 <GIC_SPI 111 IRQ_TYPE_LEVEL_LOW>,	/*btif tx dma base*/
+						 <GIC_SPI 112 IRQ_TYPE_LEVEL_LOW>;	/*btif rx dma base*/
+			clocks = <&perisys PERI_BTIF>, /*btif clock*/
+				  <&perisys PERI_APDMA>; /*ap dma clock*/
 			clock-names = "btifc","apdmac";
-		};/* End of btif */
-
+		};
+		
 		apuart4: apuart4@1100D000 {
 			cell-index = <4>;
 			compatible = "mediatek,mt6735-uart";
@@ -1029,6 +982,10 @@ firmware_class.path=/vendor/firmware";
 			vusb33-supply = <&mt_pmic_vusb33_ldo_reg>;
 			iddig_gpio = <0 1>;
 			drvvbus_gpio = <83 2>;
+		};
+
+		usbiddig:usbiddig {
+			compatible = "mediatek,usb_iddig_eint";
 		};
 
 		audiosys: audiosys@11220000 {
@@ -1313,7 +1270,8 @@ firmware_class.path=/vendor/firmware";
 		};
 
 		smi_larb0@14015000 {
-			compatible = "mediatek,smi_larb0";
+			cell-index = <0>;
+			compatible = "mediatek,smi_larb0", "mediatek,smi_larb";
 			reg = <0x14015000 0x1000>;
 		};
 
@@ -1340,6 +1298,9 @@ firmware_class.path=/vendor/firmware";
 			clock-names = "smi-common", "smi-larb0", "img-larb2", "vdec0-vdec",
 			"vdec1-larb", "venc-larb", "venc-venc", "mtcmos-ven", "mtcmos-vde",
 			"mtcmos-isp", "mtcmos-dis";
+
+			nr_larbs = <4>;
+			mmsys_config = <&mmsys_config>;
 		};
 
 		met_smi: met_smi@14016000 {
@@ -1411,7 +1372,8 @@ firmware_class.path=/vendor/firmware";
 
 
 		smi_larb2@15001000 {
-			compatible = "mediatek,smi_larb2";
+			cell-index = <2>;
+			compatible = "mediatek,smi_larb2", "mediatek,smi_larb";
 			reg = <0x15001000 0x1000>;
 			interrupts = <GIC_SPI 178 IRQ_TYPE_LEVEL_LOW>;
 		};
@@ -1433,6 +1395,20 @@ firmware_class.path=/vendor/firmware";
 		kd_camera_hw2:kd_camera_hw2@15008000 {
 			compatible = "mediatek,camera_hw2";
 			reg = <0x15008000 0x1000>;  /* SENINF_ADDR */
+		};
+
+		flashlight_core: flashlight_core {
+			compatible = "mediatek,flashlight_core";
+		};
+
+		flashlights_lm3642: flashlights_lm3642 {
+			compatible = "mediatek,flashlights_lm3642";
+			decouple = <1>;
+			channel@1 {
+				type = <0>;
+				ct = <0>;
+				part = <0>;
+			};
 		};
 
 		fdvt@1500b000 {
@@ -1490,7 +1466,8 @@ firmware_class.path=/vendor/firmware";
 		};
 
 		smi_larb1@16010000 {
-			compatible = "mediatek,smi_larb1";
+			cell-index = <1>;
+			compatible = "mediatek,smi_larb1", "mediatek,smi_larb";
 			reg = <0x16010000 0x1000>;
 			interrupts = <GIC_SPI 177 IRQ_TYPE_LEVEL_LOW>;
 		};
@@ -1515,7 +1492,8 @@ firmware_class.path=/vendor/firmware";
 		};
 
 		smi_larb3@17001000 {
-			compatible = "mediatek,smi_larb3";
+			cell-index = <3>;
+			compatible = "mediatek,smi_larb3", "mediatek,smi_larb";
 			reg = <0x17001000 0x1000>;
 			interrupts = <GIC_SPI 202 IRQ_TYPE_LEVEL_LOW>;
 		};
@@ -1734,12 +1712,12 @@ firmware_class.path=/vendor/firmware";
 		};
 
 		touch: touch {
-			compatible = "mediatek,mt6735-touch";
+			compatible = "mediatek,touch";
 			vtouch-supply = <&mt_pmic_vgp1_ldo_reg>;
 		};
 
 		accdet: accdet {
-			compatible = "mediatek,mt6735-accdet";
+			compatible = "mediatek,pmic-accdet";
 		};
 
 		nfc:nfc {
@@ -3056,55 +3034,55 @@ firmware_class.path=/vendor/firmware";
 	ssw_hot_plug_mode1:ssw@1 {
 
 		pins_cmd0_dat {
-			pins = <PINMUX_GPIO8__FUNC_MD_EINT1>;
+			pinmux = <PINMUX_GPIO8__FUNC_MD_EINT1>;
 		};
 
 		pins_cmd1_dat {
-			pins = <PINMUX_GPIO9__FUNC_MD_EINT2>;
+			pinmux = <PINMUX_GPIO9__FUNC_MD_EINT2>;
 		};
 	};
 
 	ssw_hot_plug_mode2:ssw@2 {
 
 		pins_cmd0_dat {
-			pins = <PINMUX_GPIO8__FUNC_C2K_UIM0_HOT_PLUG_IN>;
+			pinmux = <PINMUX_GPIO8__FUNC_C2K_UIM0_HOT_PLUG_IN>;
 		};
 
 		pins_cmd1_dat {
-			pins = <PINMUX_GPIO9__FUNC_MD_EINT2>;
+			pinmux = <PINMUX_GPIO9__FUNC_MD_EINT2>;
 		};
 	};
 
 	ssw_two_sims_bound_to_md1:ssw@3 {
 		pins_cmd0_dat {
-			pins = <PINMUX_GPIO163__FUNC_MD_SIM1_SCLK>;
+			pinmux = <PINMUX_GPIO163__FUNC_MD_SIM1_SCLK>;
 			slew-rate = <1>;
 		};
 
 		pins_cmd1_dat {
-			pins = <PINMUX_GPIO164__FUNC_MD_SIM1_SRST>;
+			pinmux = <PINMUX_GPIO164__FUNC_MD_SIM1_SRST>;
 			slew-rate = <1>;
 		};
 
 		pins_cmd2_dat {
-			pins = <PINMUX_GPIO165__FUNC_MD_SIM1_SDAT>;
+			pinmux = <PINMUX_GPIO165__FUNC_MD_SIM1_SDAT>;
 			slew-rate = <0>;
 			bias-pull-up = <00>;
 
 		};
 
 		pins_cmd3_dat {
-			pins = <PINMUX_GPIO160__FUNC_MD_SIM2_SCLK>;
+			pinmux = <PINMUX_GPIO160__FUNC_MD_SIM2_SCLK>;
 			slew-rate = <1>;
 		};
 
 		pins_cmd4_dat {
-			pins = <PINMUX_GPIO161__FUNC_MD_SIM2_SRST>;
+			pinmux = <PINMUX_GPIO161__FUNC_MD_SIM2_SRST>;
 			slew-rate = <1>;
 		};
 
 		pins_cmd5_dat {
-			pins = <PINMUX_GPIO162__FUNC_MD_SIM2_SDAT>;
+			pinmux = <PINMUX_GPIO162__FUNC_MD_SIM2_SDAT>;
 			slew-rate = <0>;
 			bias-pull-up = <00>;
 		};
@@ -3112,27 +3090,27 @@ firmware_class.path=/vendor/firmware";
 
 	ssw_sim1_md3_sim2_md1:ssw@4 {
 		pins_cmd0_dat {
-			pins = <PINMUX_GPIO163__FUNC_UIM0_CLK>;
+			pinmux = <PINMUX_GPIO163__FUNC_UIM0_CLK>;
 		};
 
 		pins_cmd1_dat {
-			pins = <PINMUX_GPIO164__FUNC_UIM0_RST>;
+			pinmux = <PINMUX_GPIO164__FUNC_UIM0_RST>;
 		};
 
 		pins_cmd2_dat {
-			pins = <PINMUX_GPIO165__FUNC_UIM0_IO>;
+			pinmux = <PINMUX_GPIO165__FUNC_UIM0_IO>;
 		};
 
 		pins_cmd3_dat {
-			pins = <PINMUX_GPIO160__FUNC_MD_SIM2_SCLK>;
+			pinmux = <PINMUX_GPIO160__FUNC_MD_SIM2_SCLK>;
 		};
 
 		pins_cmd4_dat {
-			pins = <PINMUX_GPIO161__FUNC_MD_SIM2_SRST>;
+			pinmux = <PINMUX_GPIO161__FUNC_MD_SIM2_SRST>;
 		};
 
 		pins_cmd5_dat {
-			pins = <PINMUX_GPIO162__FUNC_MD_SIM2_SDAT>;
+			pinmux = <PINMUX_GPIO162__FUNC_MD_SIM2_SDAT>;
 		};
 	};
 };
@@ -3153,7 +3131,7 @@ firmware_class.path=/vendor/firmware";
 
 	vsram_output_low: vsram@1 {
 		pins_cmd_dat {
-			pins = <PINMUX_GPIO140__FUNC_GPIO140>;
+			pinmux = <PINMUX_GPIO140__FUNC_GPIO140>;
 			slew-rate = <1>;
 			output-low;
 		};
@@ -3161,7 +3139,7 @@ firmware_class.path=/vendor/firmware";
 
 	vsram_output_high: vsram@2 {
 		pins_cmd_dat {
-			pins = <PINMUX_GPIO140__FUNC_GPIO140>;
+			pinmux = <PINMUX_GPIO140__FUNC_GPIO140>;
 			slew-rate = <1>;
 			output-high;
 		};
@@ -3170,47 +3148,47 @@ firmware_class.path=/vendor/firmware";
 	RFIC0_01_mode: clockbuf@1{
 
 		pins_cmd0_dat {
-			pins = <PINMUX_GPIO110__FUNC_RFIC0_BSI_EN>;
+			pinmux = <PINMUX_GPIO110__FUNC_RFIC0_BSI_EN>;
 		};
 
 		pins_cmd1_dat {
-			pins = <PINMUX_GPIO111__FUNC_RFIC0_BSI_CK>;
+			pinmux = <PINMUX_GPIO111__FUNC_RFIC0_BSI_CK>;
 		};
 
 		pins_cmd2_dat {
-			pins = <PINMUX_GPIO112__FUNC_RFIC0_BSI_D2>;
+			pinmux = <PINMUX_GPIO112__FUNC_RFIC0_BSI_D2>;
 		};
 
 
 		pins_cmd3_dat {
-			pins = <PINMUX_GPIO113__FUNC_RFIC0_BSI_D1>;
+			pinmux = <PINMUX_GPIO113__FUNC_RFIC0_BSI_D1>;
 		};
 
 		pins_cmd4_dat {
-			pins = <PINMUX_GPIO114__FUNC_RFIC0_BSI_D0>;
+			pinmux = <PINMUX_GPIO114__FUNC_RFIC0_BSI_D0>;
 		};
 	};
 
 	RFIC0_04_mode: clockbuf@2{
 
 		pins_cmd0_dat {
-			pins = <PINMUX_GPIO110__FUNC_SPM_BSI_EN>;
+			pinmux = <PINMUX_GPIO110__FUNC_SPM_BSI_EN>;
 		};
 
 		pins_cmd1_dat {
-			pins = <PINMUX_GPIO111__FUNC_SPM_BSI_CLK>;
+			pinmux = <PINMUX_GPIO111__FUNC_SPM_BSI_CLK>;
 		};
 
 		pins_cmd2_dat {
-			pins = <PINMUX_GPIO112__FUNC_SPM_BSI_D2>;
+			pinmux = <PINMUX_GPIO112__FUNC_SPM_BSI_D2>;
 		};
 
 		pins_cmd3_dat {
-			pins = <PINMUX_GPIO113__FUNC_SPM_BSI_D1>;
+			pinmux = <PINMUX_GPIO113__FUNC_SPM_BSI_D1>;
 		};
 
 		pins_cmd4_dat {
-			pins = <PINMUX_GPIO114__FUNC_SPM_BSI_D0>;
+			pinmux = <PINMUX_GPIO114__FUNC_SPM_BSI_D0>;
 		};
 
 	};
@@ -3225,24 +3203,24 @@ firmware_class.path=/vendor/firmware";
 	};
 	uart0_rx_set_cfg:uart0_rx_set@gpio74 {
 	    pins_cmd_dat {
-			pins = <PINMUX_GPIO74__FUNC_URXD0>;
+			pinmux = <PINMUX_GPIO74__FUNC_URXD0>;
 		};
 	};
 	uart0_rx_clr_cfg:uart0_rx_clear@gpio74  {
 	    pins_cmd_dat {
-			pins = <PINMUX_GPIO74__FUNC_GPIO74>;
+			pinmux = <PINMUX_GPIO74__FUNC_GPIO74>;
 			slew-rate = <1>;
 			output-high;
 		};
 	};
 	uart0_tx_set_cfg:uart0_tx_set@gpio75  {
 	    pins_cmd_dat {
-			pins = <PINMUX_GPIO75__FUNC_UTXD0>;
+			pinmux = <PINMUX_GPIO75__FUNC_UTXD0>;
 		};
 	};
 	uart0_tx_clr_cfg:uart0_tx_clear@gpio75  {
 	    pins_cmd_dat {
-			pins = <PINMUX_GPIO75__FUNC_GPIO75>;
+			pinmux = <PINMUX_GPIO75__FUNC_GPIO75>;
 			slew-rate = <1>;
 			output-high;
 		};
@@ -3254,24 +3232,24 @@ firmware_class.path=/vendor/firmware";
 	};
 	uart1_rx_set_cfg:uart1_rx_set@gpio76 {
 	    pins_cmd_dat {
-			pins = <PINMUX_GPIO76__FUNC_URXD1>;
+			pinmux = <PINMUX_GPIO76__FUNC_URXD1>;
 		};
 	};
 	uart1_rx_clr_cfg:uart1_rx_clear@gpio76 {
 	    pins_cmd_dat {
-			pins = <PINMUX_GPIO76__FUNC_GPIO76>;
+			pinmux = <PINMUX_GPIO76__FUNC_GPIO76>;
 			slew-rate = <1>;
 			output-high;
 		};
 	};
 	uart1_tx_set_cfg:uart1_tx_set@gpio77 {
 	    pins_cmd_dat {
-			pins = <PINMUX_GPIO77__FUNC_UTXD1>;
+			pinmux = <PINMUX_GPIO77__FUNC_UTXD1>;
 		};
 	};
 	uart1_tx_clr_cfg:uart1_tx_clear@gpio77 {
 	    pins_cmd_dat {
-			pins = <PINMUX_GPIO77__FUNC_GPIO77>;
+			pinmux = <PINMUX_GPIO77__FUNC_GPIO77>;
 			slew-rate = <1>;
 			output-high;
 		};
@@ -3284,24 +3262,24 @@ firmware_class.path=/vendor/firmware";
 	};
 	uart2_rx_set_cfg:uart2_rx_set@gpio57 {
 	    pins_cmd_dat {
-			pins = <PINMUX_GPIO57__FUNC_URXD2>;
+			pinmux = <PINMUX_GPIO57__FUNC_URXD2>;
 		};
 	};
 	uart2_rx_clr_cfg:uart2_rx_clear@gpio57 {
 	    pins_cmd_dat {
-			pins = <PINMUX_GPIO57__FUNC_GPIO57>;
+			pinmux = <PINMUX_GPIO57__FUNC_GPIO57>;
 			slew-rate = <1>;
 			output-high;
 		};
 	};
 	uart2_tx_set_cfg:uart2_tx_set@gpio58 {
 	    pins_cmd_dat {
-			pins = <PINMUX_GPIO58__FUNC_UTXD2>;
+			pinmux = <PINMUX_GPIO58__FUNC_UTXD2>;
 		};
 	};
 	uart2_tx_clr_cfg:uart2_tx_clear@gpio58 {
 	    pins_cmd_dat {
-			pins = <PINMUX_GPIO58__FUNC_GPIO58>;
+			pinmux = <PINMUX_GPIO58__FUNC_GPIO58>;
 			slew-rate = <1>;
 			output-high;
 		};
@@ -3314,24 +3292,24 @@ firmware_class.path=/vendor/firmware";
 	};
 	uart3_rx_set_cfg:uart3_rx_set@gpio59 {
 	    pins_cmd_dat {
-			pins = <PINMUX_GPIO59__FUNC_URXD3>;
+			pinmux = <PINMUX_GPIO59__FUNC_URXD3>;
 		};
 	};
 	uart3_rx_clr_cfg:uart3_rx_clear@gpio59 {
 	    pins_cmd_dat {
-			pins = <PINMUX_GPIO59__FUNC_GPIO59>;
+			pinmux = <PINMUX_GPIO59__FUNC_GPIO59>;
 			slew-rate = <1>;
 			output-high;
 		};
 	};
 	uart3_tx_set_cfg:uart3_tx_set@gpio60 {
 	    pins_cmd_dat {
-			pins = <PINMUX_GPIO60__FUNC_UTXD3>;
+			pinmux = <PINMUX_GPIO60__FUNC_UTXD3>;
 		};
 	};
 	uart3_tx_clr_cfg:uart3_tx_clear@gpio60 {
 	    pins_cmd_dat {
-			pins = <PINMUX_GPIO60__FUNC_GPIO60>;
+			pinmux = <PINMUX_GPIO60__FUNC_GPIO60>;
 			slew-rate = <1>;
 			output-high;
 		};
@@ -3345,7 +3323,7 @@ firmware_class.path=/vendor/firmware";
 	/* default: GPIO0, output, high */
 	irtx_gpio_default:irtx_gpio_led_def@gpio19 {
 	    pins_cmd_dat {
-			pins = <PINMUX_GPIO19__FUNC_GPIO19>;
+			pinmux = <PINMUX_GPIO19__FUNC_GPIO19>;
 			slew-rate = <1>;
 			bias-disable;
 			output-high;
@@ -3355,10 +3333,13 @@ firmware_class.path=/vendor/firmware";
 
 	irtx_gpio_led_set:irtx_gpio_led_set@gpio19 {
 	    pins_cmd_dat {
-			pins = <PINMUX_GPIO19__FUNC_IRTX_OUT>;
+			pinmux = <PINMUX_GPIO19__FUNC_IRTX_OUT>;
 		};
 	};
 	/* IRTX GPIO Settings -End */
 };
+
+
+#include "cust_mt6735_msdc.dtsi"
 
 #include <trusty.dtsi>
